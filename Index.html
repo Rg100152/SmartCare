@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartCare Diagnostics Portal | Educational UI Prototype</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #0a0a14;
+            --bg2: #111122;
+            --bg3: #1a1a2e;
+            --card: rgba(20, 20, 40, 0.7);
+            --card2: rgba(25, 25, 50, 0.8);
+            --blue: #4A90D9;
+            --blue-glow: rgba(74, 144, 217, 0.3);
+            --purple: #8B5CF6;
+            --purple-glow: rgba(139, 92, 246, 0.3);
+            --green: #10B981;
+            --green-glow: rgba(16, 185, 129, 0.3);
+            --text: #e0e0f0;
+            --text2: #b0b0c8;
+            --text3: #8888a0;
+            --border: rgba(255, 255, 255, 0.08);
+            --border2: rgba(255, 255, 255, 0.12);
+            --shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.5);
+            --radius: 16px;
+            --radius-sm: 10px;
+            --radius-lg: 24px;
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .light-mode {
+            --bg: #f0f2f8;
+            --bg2: #e8ecf4;
+            --bg3: #ffffff;
+            --card: rgba(255, 255, 255, 0.75);
+            --card2: rgba(255, 255, 255, 0.9);
+            --text: #1a1a2e;
+            --text2: #444;
+            --text3: #777;
+            --border: rgba(0, 0, 0, 0.06);
+            --border2: rgba(0, 0, 0, 0.1);
+            --shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.1);
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 80px;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: background 0.4s, color 0.4s;
+            cursor: default;
+        }
+        .cursor-glow {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, transparent 70%);
+            transform: translate(-50%, -50%);
+            transition: opacity 0.3s;
+            opacity: 0;
+        }
+        body:hover .cursor-glow {
+            opacity: 1;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--purple);
+            border-radius: 3px;
+        }
+
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            transition: opacity 0.5s, visibility 0.5s;
+        }
+        #loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        #loader .spinner-ring {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--border);
+            border-top-color: var(--purple);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        #loader p {
+            margin-top: 14px;
+            font-weight: 600;
+            color: var(--purple);
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+        }
+
+        .bg-particles {
+            position: fixed;
+            pointer-events: none;
+            z-index: 0;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .bg-particle {
+            position: absolute;
+            border-radius: 50%;
+            animation: floatUp linear infinite;
+            opacity: 0;
+        }
+        @keyframes floatUp {
+            0% {
+                transform: translateY(105vh) scale(0);
+                opacity: 0;
+            }
+            8% {
+                opacity: 0.7;
+            }
+            90% {
+                opacity: 0.15;
+            }
+            100% {
+                transform: translateY(-8vh) scale(1.3);
+                opacity: 0;
+            }
+        }
+
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 28px;
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+            max-width: 1350px;
+            margin: 8px auto 0;
+            background: var(--card);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+        .nav-brand {
+            font-weight: 800;
+            font-size: 1.3rem;
+            color: var(--text);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: -0.5px;
+        }
+        .nav-brand .brand-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--purple), var(--blue));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1rem;
+        }
+        .nav-links {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text2);
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.85rem;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+        .nav-links a:hover {
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--purple);
+        }
+        .nav-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .nav-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            background: var(--card2);
+            color: var(--text);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .nav-btn:hover {
+            background: var(--purple);
+            color: #fff;
+        }
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            flex-direction: column;
+            gap: 5px;
+            padding: 6px;
+        }
+        .hamburger span {
+            width: 24px;
+            height: 2px;
+            background: var(--text);
+            border-radius: 2px;
+            transition: var(--transition);
+        }
+
+        .section {
+            max-width: 1350px;
+            margin: 0 auto;
+            padding: 50px 24px;
+            position: relative;
+            z-index: 1;
+        }
+        .section-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .section-tag {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--purple);
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .section-header h2 {
+            font-size: clamp(1.6rem, 2.5vw, 2.2rem);
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 6px;
+        }
+        .section-line {
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--purple), var(--blue));
+            margin: 0 auto;
+            border-radius: 2px;
+        }
+
+        .hero {
+            min-height: 85vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 60px 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 700px;
+            animation: fadeInUp 1s ease-out;
+        }
+        @keyframes fadeInUp {
+            from {
+                transform: translateY(40px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .hero-badge {
+            display: inline-block;
+            background: rgba(139, 92, 246, 0.2);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            padding: 7px 18px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--purple);
+            letter-spacing: 1px;
+            margin-bottom: 18px;
+        }
+        .hero h1 {
+            font-size: clamp(2rem, 4.5vw, 3.2rem);
+            font-weight: 900;
+            letter-spacing: -1.5px;
+            line-height: 1.15;
+            margin-bottom: 14px;
+            background: linear-gradient(135deg, #fff, #c0c0f0, #8B5CF6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero p {
+            font-size: 1rem;
+            color: var(--text2);
+            max-width: 500px;
+            margin: 0 auto 24px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 13px 26px;
+            border-radius: 28px;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--purple), var(--blue));
+            color: #fff;
+            box-shadow: 0 6px 24px var(--purple-glow);
+        }
+        .btn-primary:hover {
+            box-shadow: 0 10px 32px rgba(139, 92, 246, 0.5);
+            transform: translateY(-3px);
+        }
+        .btn-outline {
+            background: transparent;
+            color: var(--text);
+            border: 2px solid var(--border2);
+        }
+        .btn-outline:hover {
+            border-color: var(--purple);
+            background: rgba(139, 92, 246, 0.1);
+        }
+        .btn-sm {
+            padding: 7px 14px;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 0.78rem;
+            cursor: pointer;
+            border: none;
+            font-family: 'Poppins', sans-serif;
+            transition: var(--transition);
+        }
+        .btn-sm.primary {
+            background: var(--purple);
+            color: #fff;
+        }
+        .btn-sm.primary:hover {
+            background: #7C3FED;
+        }
+        .btn-sm.green {
+            background: var(--green);
+            color: #fff;
+        }
+        .btn-sm.green:hover {
+            background: #059669;
+        }
+
+        .card {
+            background: var(--card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+        .card:hover {
+            border-color: var(--border2);
+            box-shadow: var(--shadow-lg), 0 0 30px rgba(139, 92, 246, 0.08);
+            transform: translateY(-3px);
+        }
+        .card.glass {
+            background: rgba(20, 20, 40, 0.5);
+        }
+        .light-mode .card.glass {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        .dash-stat {
+            background: var(--card);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        .dash-stat:hover {
+            border-color: var(--purple);
+            box-shadow: 0 8px 28px rgba(139, 92, 246, 0.15);
+        }
+        .dash-stat .dash-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+        .dash-stat .dash-value {
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+        .dash-stat .dash-label {
+            font-size: 0.75rem;
+            color: var(--text3);
+            margin-top: 2px;
+        }
+
+        .chart-bar-container {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            height: 100px;
+            margin-top: 12px;
+        }
+        .chart-bar {
+            flex: 1;
+            border-radius: 6px 6px 0 0;
+            background: linear-gradient(to top, var(--purple), var(--blue));
+            transition: 0.6s;
+            animation: growBar 1s ease-out forwards;
+            transform-origin: bottom;
+        }
+        @keyframes growBar {
+            from {
+                transform: scaleY(0);
+            }
+            to {
+                transform: scaleY(1);
+            }
+        }
+
+        .ticket-timeline {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            margin: 10px 0;
+        }
+        .timeline-dot {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid var(--border2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            transition: var(--transition);
+        }
+        .timeline-dot.done {
+            background: var(--green);
+            border-color: var(--green);
+            color: #fff;
+        }
+        .timeline-dot.active {
+            background: var(--purple);
+            border-color: var(--purple);
+            color: #fff;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 var(--purple-glow);
+            }
+            50% {
+                box-shadow: 0 0 20px 8px var(--purple-glow);
+            }
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.25s ease-out;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        .modal {
+            background: var(--card2);
+            backdrop-filter: blur(24px);
+            border: 1px solid var(--border2);
+            border-radius: var(--radius-lg);
+            padding: 28px 24px;
+            max-width: 520px;
+            width: 93%;
+            box-shadow: var(--shadow-lg);
+            animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        @keyframes popIn {
+            from {
+                transform: scale(0.8) translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+        .modal .close-btn {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            font-size: 1.3rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: var(--text3);
+            z-index: 1;
+        }
+        .modal input,
+        .modal select,
+        .modal textarea {
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border2);
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.88rem;
+            background: var(--bg3);
+            color: var(--text);
+            margin-bottom: 10px;
+            outline: none;
+            transition: var(--transition);
+        }
+        .modal input:focus,
+        .modal select:focus,
+        .modal textarea:focus {
+            border-color: var(--purple);
+            box-shadow: 0 0 0 3px var(--purple-glow);
+        }
+
+        .toast-container {
+            position: fixed;
+            bottom: 22px;
+            right: 22px;
+            z-index: 300;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .toast {
+            background: var(--card2);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border2);
+            color: var(--text);
+            padding: 13px 20px;
+            border-radius: 24px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            box-shadow: var(--shadow-lg);
+            animation: slideInRight 0.4s ease-out, fadeOutRight 0.4s ease-out 2.6s forwards;
+            max-width: 360px;
+        }
+        @keyframes slideInRight {
+            from {
+                transform: translateX(130%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @keyframes fadeOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(130%);
+                opacity: 0;
+            }
+        }
+
+        .fab {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--purple), var(--blue));
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            z-index: 99;
+            box-shadow: var(--shadow-lg);
+            transition: var(--transition);
+            opacity: 0;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .fab.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .fab:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px var(--purple-glow);
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, var(--bg3) 25%, var(--border2) 50%, var(--bg3) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s ease-in-out infinite;
+            border-radius: 8px;
+        }
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        .ticket-id {
+            font-family: 'Courier New', monospace;
+            background: rgba(139, 92, 246, 0.15);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--purple);
+            display: inline-block;
+            user-select: all;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 14px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .status-badge.active {
+            background: rgba(139, 92, 246, 0.2);
+            color: var(--purple);
+        }
+        .status-badge.done {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--green);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 32px 24px;
+            color: var(--text3);
+            font-size: 0.82rem;
+            border-top: 1px solid var(--border);
+            margin-top: 40px;
+        }
+        .footer a {
+            color: var(--purple);
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 65px;
+                left: 10px;
+                right: 10px;
+                background: var(--card2);
+                backdrop-filter: blur(20px);
+                border-radius: var(--radius);
+                flex-direction: column;
+                padding: 14px;
+                border: 1px solid var(--border);
+            }
+            .nav-links.show {
+                display: flex;
+            }
+            .hamburger {
+                display: flex;
+            }
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .hero h1 {
+                font-size: 1.7rem;
+            }
+        }
+        @media (max-width: 480px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            .navbar {
+                padding: 10px 14px;
+                border-radius: 30px;
+                top: 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="cursor-glow" id="cursorGlow"></div>
+    <div class="bg-particles" id="bgParticles"></div>
+
+    <div id="loader">
+        <div class="spinner-ring"></div>
+        <p>SmartCare Diagnostics</p>
+    </div>
+
+    <nav class="navbar" id="navbar">
+        <a href="#" class="nav-brand"><span class="brand-icon"><i class="fas fa-microchip"></i></span> SmartCare</a>
+        <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#dashboard">Dashboard</a></li>
+            <li><a href="#diagnostics">Diagnostics</a></li>
+            <li><a href="#report">Report</a></li>
+            <li><a href="#tickets">Tickets</a></li>
+            <li><a href="#analytics">Analytics</a></li>
+            <li><a href="#faq">FAQ</a></li>
+        </ul>
+        <div class="nav-actions">
+            <button class="nav-btn" id="themeToggle" title="Toggle Theme">🌓</button>
+            <button class="nav-btn" id="notifBtn" title="Notifications">🔔<span class="badge" id="notifBadge" style="position:absolute;top:-4px;right:-4px;background:#ef4444;color:#fff;font-size:0.6rem;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;">3</span></button>
+        </div>
+    </nav>
+
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <div class="hero-badge"><i class="fas fa-shield-alt"></i> Educational UI Prototype</div>
+            <h1>SmartCare Diagnostics Portal</h1>
+            <p>Enterprise-grade device diagnostics, issue tracking, and analytics dashboard. Simulated for demonstration purposes only.</p>
+            <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+                <a href="#diagnostics" class="btn btn-primary"><i class="fas fa-stethoscope"></i> Run Diagnostics</a>
+                <a href="#report" class="btn btn-outline"><i class="fas fa-file-medical-alt"></i> Report Issue</a>
+            </div>
+            <div style="display:flex;gap:28px;justify-content:center;margin-top:32px;flex-wrap:wrap;">
+                <div style="text-align:center;"><div style="font-size:2rem;font-weight:800;color:var(--purple);" class="counter" data-target="4829">0</div><div style="font-size:0.75rem;color:var(--text3);">Total Reports</div></div>
+                <div style="text-align:center;"><div style="font-size:2rem;font-weight:800;color:var(--green);" class="counter" data-target="97.5">0</div><div style="font-size:0.75rem;color:var(--text3);">Resolution Rate %</div></div>
+                <div style="text-align:center;"><div style="font-size:2rem;font-weight:800;color:var(--blue);" class="counter" data-target="12840">0</div><div style="font-size:0.75rem;color:var(--text3);">Devices Registered</div></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="dashboard">
+        <div class="section-header"><div class="section-tag">Overview</div><h2>📊 Dashboard</h2><div class="section-line"></div></div>
+        <div class="dashboard-grid" id="dashGrid">
+            <div class="dash-stat"><div class="dash-icon" style="background:rgba(139,92,246,0.2);color:var(--purple);"><i class="fas fa-file-alt"></i></div><div class="dash-value" id="dashReports">4,829</div><div class="dash-label">Total Reports</div></div>
+            <div class="dash-stat"><div class="dash-icon" style="background:rgba(74,144,217,0.2);color:var(--blue);"><i class="fas fa-ticket-alt"></i></div><div class="dash-value" id="dashActive">156</div><div class="dash-label">Active Tickets</div></div>
+            <div class="dash-stat"><div class="dash-icon" style="background:rgba(16,185,129,0.2);color:var(--green);"><i class="fas fa-check-circle"></i></div><div class="dash-value" id="dashResolved">4,673</div><div class="dash-label">Resolved Issues</div></div>
+            <div class="dash-stat"><div class="dash-icon" style="background:rgba(245,158,11,0.2);color:#f59e0b;"><i class="fas fa-mobile-alt"></i></div><div class="dash-value">12,840</div><div class="dash-label">Devices Registered</div></div>
+            <div class="dash-stat"><div class="dash-icon" style="background:rgba(239,68,68,0.2);color:#ef4444;"><i class="fas fa-clock"></i></div><div class="dash-value" id="dashPending">89</div><div class="dash-label">Pending Review</div></div>
+            <div class="dash-stat"><div class="dash-icon" style="background:rgba(16,185,129,0.2);color:var(--green);"><i class="fas fa-shield-alt"></i></div><div class="dash-value">92%</div><div class="dash-label">Warranty Active</div></div>
+        </div>
+        <div class="card" style="margin-top:18px;">
+            <div style="font-weight:600;margin-bottom:8px;">📈 Weekly Report Analytics</div>
+            <div class="chart-bar-container">
+                <div class="chart-bar" style="height:45%;animation-delay:0.1s;"></div>
+                <div class="chart-bar" style="height:70%;animation-delay:0.2s;"></div>
+                <div class="chart-bar" style="height:55%;animation-delay:0.3s;"></div>
+                <div class="chart-bar" style="height:88%;animation-delay:0.4s;"></div>
+                <div class="chart-bar" style="height:62%;animation-delay:0.5s;"></div>
+                <div class="chart-bar" style="height:78%;animation-delay:0.6s;"></div>
+                <div class="chart-bar" style="height:95%;animation-delay:0.7s;"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--text3);margin-top:4px;"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+        </div>
+    </section>
+
+    <section class="section" id="diagnostics">
+        <div class="section-header"><div class="section-tag">Tools</div><h2>🔧 Device Diagnostics</h2><div class="section-line"></div></div>
+        <div class="card" style="max-width:600px;margin:0 auto;">
+            <div style="display:flex;flex-direction:column;gap:10px;">
+                <input type="text" id="imeiInput" placeholder="Enter IMEI Number (e.g., 123456789012345)" maxlength="15" style="padding:12px;border-radius:8px;border:1px solid var(--border2);background:var(--bg3);color:var(--text);font-family:'Poppins',sans-serif;">
+                <button class="btn btn-primary" id="runDiagnostics"><i class="fas fa-play"></i> Start Diagnostics</button>
+            </div>
+            <div id="diagResults" style="margin-top:16px;"></div>
+            <div id="diagSkeleton" style="display:none;margin-top:16px;">
+                <div class="skeleton" style="height:18px;width:80%;margin-bottom:8px;"></div>
+                <div class="skeleton" style="height:18px;width:60%;margin-bottom:8px;"></div>
+                <div class="skeleton" style="height:18px;width:90%;margin-bottom:8px;"></div>
+                <div class="skeleton" style="height:18px;width:70%;margin-bottom:8px;"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="report">
+        <div class="section-header"><div class="section-tag">Support</div><h2>📝 Issue Report Form</h2><div class="section-line"></div></div>
+        <div class="card" style="max-width:650px;margin:0 auto;">
+            <form id="reportForm">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                    <input type="text" placeholder="Full Name *" required>
+                    <input type="email" placeholder="Email *" required>
+                    <input type="tel" placeholder="Phone">
+                    <input type="text" id="reportIMEI" placeholder="IMEI *" required maxlength="15">
+                    <input type="text" placeholder="Device Model *" required>
+                    <select required><option value="">Warranty Status</option><option>Under Warranty</option><option>Expired</option><option>Extended Warranty</option></select>
+                    <select required><option value="">Issue Category *</option><option>Battery</option><option>Display</option><option>Camera</option><option>Speaker/Mic</option><option>Network</option><option>Software</option><option>Other</option></select>
+                    <select required><option value="">Priority *</option><option>Low</option><option>Medium</option><option>High</option><option>Critical</option></select>
+                </div>
+                <textarea rows="3" placeholder="Describe your issue..." style="width:100%;margin-top:10px;resize:vertical;"></textarea>
+                <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap;">
+                    <button type="button" class="btn-sm primary"><i class="fas fa-image"></i> Upload Image (Demo)</button>
+                    <button type="button" class="btn-sm green"><i class="fas fa-video"></i> Upload Video (Demo)</button>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;margin-top:14px;"><i class="fas fa-paper-plane"></i> Submit Report</button>
+            </form>
+        </div>
+    </section>
+
+    <section class="section" id="tickets">
+        <div class="section-header"><div class="section-tag">Tracking</div><h2>🎫 Ticket System</h2><div class="section-line"></div></div>
+        <div class="card" style="max-width:650px;margin:0 auto;">
+            <div style="margin-bottom:14px;"><span class="ticket-id">SCP-2026-000001</span> <span class="status-badge active">In Progress</span></div>
+            <div class="ticket-timeline">
+                <div class="timeline-dot done">✓</div><span style="font-size:0.7rem;color:var(--text3);">Submitted</span>
+                <span style="color:var(--text3);">→</span>
+                <div class="timeline-dot done">✓</div><span style="font-size:0.7rem;color:var(--text3);">Review</span>
+                <span style="color:var(--text3);">→</span>
+                <div class="timeline-dot active">⚙</div><span style="font-size:0.7rem;color:var(--purple);">Engineer</span>
+                <span style="color:var(--text3);">→</span>
+                <div class="timeline-dot">○</div><span style="font-size:0.7rem;color:var(--text3);">Testing</span>
+                <span style="color:var(--text3);">→</span>
+                <div class="timeline-dot">○</div><span style="font-size:0.7rem;color:var(--text3);">Resolved</span>
+            </div>
+            <p style="font-size:0.85rem;color:var(--text2);margin-top:8px;">Device: OnePlus 12 · Issue: Battery drain · Engineer: Rajesh K.</p>
+            <button class="btn-sm primary" id="generateTicket" style="margin-top:10px;"><i class="fas fa-plus"></i> Generate New Ticket</button>
+            <div id="newTicketInfo" style="margin-top:10px;"></div>
+        </div>
+    </section>
+
+    <section class="section" id="analytics">
+        <div class="section-header"><div class="section-tag">Insights</div><h2>📉 Analytics</h2><div class="section-line"></div></div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
+            <div class="card">
+                <div style="font-weight:600;margin-bottom:10px;">📊 Issue Distribution</div>
+                <div class="chart-bar-container" style="height:80px;">
+                    <div class="chart-bar" style="height:70%;background:linear-gradient(to top,#ef4444,#f87171);"></div>
+                    <div class="chart-bar" style="height:55%;background:linear-gradient(to top,#f59e0b,#fbbf24);"></div>
+                    <div class="chart-bar" style="height:85%;background:linear-gradient(to top,#8B5CF6,#a78bfa);"></div>
+                    <div class="chart-bar" style="height:40%;background:linear-gradient(to top,#10B981,#34d399);"></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--text3);margin-top:4px;"><span>Battery</span><span>Display</span><span>Software</span><span>Network</span></div>
+            </div>
+            <div class="card">
+                <div style="font-weight:600;margin-bottom:10px;">🥧 Resolution by Category</div>
+                <div style="display:flex;flex-direction:column;gap:6px;">
+                    <div style="display:flex;align-items:center;gap:8px;"><div style="width:12px;height:12px;border-radius:50%;background:#8B5CF6;"></div><span style="font-size:0.8rem;">Hardware: 45%</span><div style="flex:1;height:6px;background:var(--border2);border-radius:3px;"><div style="width:45%;height:100%;background:#8B5CF6;border-radius:3px;"></div></div></div>
+                    <div style="display:flex;align-items:center;gap:8px;"><div style="width:12px;height:12px;border-radius:50%;background:#4A90D9;"></div><span style="font-size:0.8rem;">Software: 35%</span><div style="flex:1;height:6px;background:var(--border2);border-radius:3px;"><div style="width:35%;height:100%;background:#4A90D9;border-radius:3px;"></div></div></div>
+                    <div style="display:flex;align-items:center;gap:8px;"><div style="width:12px;height:12px;border-radius:50%;background:#10B981;"></div><span style="font-size:0.8rem;">Network: 20%</span><div style="flex:1;height:6px;background:var(--border2);border-radius:3px;"><div style="width:20%;height:100%;background:#10B981;border-radius:3px;"></div></div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="faq">
+        <div class="section-header"><div class="section-tag">Help</div><h2>❓ FAQ</h2><div class="section-line"></div></div>
+        <div style="max-width:650px;margin:0 auto;display:flex;flex-direction:column;gap:8px;">
+            <div class="card" style="cursor:pointer;" onclick="this.classList.toggle('open');const a=this.querySelector('.faq-answer');a.style.maxHeight=a.style.maxHeight?'':'200px';"><div style="font-weight:600;display:flex;justify-content:space-between;">🔧 How do I run diagnostics? <i class="fas fa-chevron-down"></i></div><div class="faq-answer" style="max-height:0;overflow:hidden;transition:0.4s;font-size:0.85rem;color:var(--text2);">Enter your device IMEI and click "Start Diagnostics". The system will simulate hardware tests.</div></div>
+            <div class="card" style="cursor:pointer;" onclick="this.classList.toggle('open');const a=this.querySelector('.faq-answer');a.style.maxHeight=a.style.maxHeight?'':'200px';"><div style="font-weight:600;display:flex;justify-content:space-between;">📝 How are ticket IDs generated? <i class="fas fa-chevron-down"></i></div><div class="faq-answer" style="max-height:0;overflow:hidden;transition:0.4s;font-size:0.85rem;color:var(--text2);">Tickets get auto-generated IDs like SCP-2026-XXXXXX when you submit a report.</div></div>
+            <div class="card" style="cursor:pointer;" onclick="this.classList.toggle('open');const a=this.querySelector('.faq-answer');a.style.maxHeight=a.style.maxHeight?'':'200px';"><div style="font-weight:600;display:flex;justify-content:space-between;">🔒 Is this a real service? <i class="fas fa-chevron-down"></i></div><div class="faq-answer" style="max-height:0;overflow:hidden;transition:0.4s;font-size:0.85rem;color:var(--text2);">No. This is an educational UI prototype for demonstration purposes only. Not affiliated with any real company.</div></div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>© 2026 <strong>SmartCare Diagnostics Portal</strong> — Educational UI Prototype. Not affiliated with any real brand.</p>
+        <p style="opacity:0.6;">Built with ❤️ for learning purposes. | <a href="#">Privacy</a> | <a href="#">Terms</a> | <a href="#">Contact</a></p>
+    </footer>
+
+    <button class="fab" id="fabTop" title="Back to Top"><i class="fas fa-arrow-up"></i></button>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        (function() {
+            const $ = s => document.querySelector(s);
+            const $$ = s => document.querySelectorAll(s);
+            let darkMode = false;
+
+            // Loader
+            window.addEventListener('load', () => setTimeout(() => $('#loader').classList.add('hidden'), 700));
+
+            // Cursor glow
+            document.addEventListener('mousemove', e => {
+                const glow = $('#cursorGlow');
+                glow.style.left = e.clientX + 'px';
+                glow.style.top = e.clientY + 'px';
+            });
+
+            // Particles
+            const pc = $('#bgParticles');
+            for (let i = 0; i < 35; i++) {
+                const p = document.createElement('div');
+                p.className = 'bg-particle';
+                const s = Math.random() * 5 + 2;
+                p.style.width = s + 'px';
+                p.style.height = s + 'px';
+                p.style.left = Math.random() * 100 + '%';
+                p.style.background = ['#8B5CF6', '#4A90D9', '#10B981', '#f59e0b'][Math.floor(Math.random() * 4)];
+                p.style.animationDuration = (Math.random() * 16 + 10) + 's';
+                p.style.animationDelay = (Math.random() * 12) + 's';
+                pc.appendChild(p);
+            }
+
+            // Theme toggle
+            function applyTheme() {
+                document.body.classList.toggle('light-mode', darkMode);
+                $('#themeToggle').textContent = darkMode ? '☀️' : '🌓';
+            }
+            $('#themeToggle').addEventListener('click', () => { darkMode = !darkMode;
+                applyTheme();
+                showToast(darkMode ? '☀️ Light mode on' : '🌙 Dark mode on'); });
+
+            // Hamburger
+            $('#hamburger').addEventListener('click', () => {
+                $('#hamburger').classList.toggle('active');
+                $('#navLinks').classList.toggle('show');
+            });
+            $$('.nav-links a').forEach(l => l.addEventListener('click', () => { $('#hamburger').classList.remove(
+                    'active');
+                $('#navLinks').classList.remove('show'); }));
+
+            // FAB back to top
+            window.addEventListener('scroll', () => $('#fabTop').classList.toggle('show', window.scrollY > 500));
+            $('#fabTop').addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+            // Toast
+            function showToast(msg) {
+                const t = document.createElement('div');
+                t.className = 'toast';
+                t.textContent = msg;
+                $('#toastContainer').appendChild(t);
+                setTimeout(() => t.remove(), 3200);
+            }
+
+            // Counter animation
+            function animateCounters() {
+                $$('.counter').forEach(el => {
+                    const target = parseFloat(el.dataset.target);
+                    const isFloat = target % 1 !== 0;
+                    let current = 0;
+                    const step = isFloat ? target / 60 : Math.ceil(target / 60);
+                    const interval = setInterval(() => {
+                        current = Math.min(current + step, target);
+                        el.textContent = isFloat ? current.toFixed(1) : Math.floor(current)
+                            .toLocaleString('en-IN');
+                        if (current >= target) clearInterval(interval);
+                    }, 25);
+                });
+            }
+            setTimeout(animateCounters, 1000);
+
+            // Diagnostics
+            $('#runDiagnostics').addEventListener('click', function() {
+                const imei = $('#imeiInput').value.trim();
+                if (!imei || imei.length < 10) return showToast('⚠️ Please enter a valid IMEI number.');
+                const skel = $('#diagSkeleton');
+                const res = $('#diagResults');
+                res.innerHTML = '';
+                skel.style.display = 'block';
+                setTimeout(() => {
+                    skel.style.display = 'none';
+                    const tests = [
+                        { name: 'Battery Health', val: Math.floor(Math.random() * 20 + 80) + '%',
+                            icon: '🔋', color: '#10B981' },
+                        { name: 'CPU Temperature', val: Math.floor(Math.random() * 20 + 35) + '°C',
+                            icon: '🌡️', color: '#f59e0b' },
+                        { name: 'RAM Usage', val: Math.floor(Math.random() * 40 + 30) + '%',
+                        icon: '💾', color: '#4A90D9' },
+                        { name: 'Storage', val: Math.floor(Math.random() * 50 + 40) + '%',
+                        icon: '💿', color: '#8B5CF6' },
+                        { name: 'Charging Cycles', val: Math.floor(Math.random() * 500 + 100),
+                            icon: '🔌', color: '#ef4444' },
+                        { name: 'Camera', val: '✅ Functional', icon: '📷', color: '#10B981' },
+                        { name: 'Display', val: '✅ No defects', icon: '📱', color: '#10B981' },
+                        { name: 'Speaker', val: '✅ Clear audio', icon: '🔊', color: '#10B981' },
+                        { name: 'Microphone', val: '✅ Working', icon: '🎤', color: '#10B981' },
+                        { name: 'Sensors', val: '✅ All active', icon: '📡', color: '#10B981' },
+                        { name: 'WiFi', val: '✅ Connected', icon: '📶', color: '#10B981' },
+                        { name: 'Bluetooth', val: '✅ Paired', icon: '🦷', color: '#10B981' },
+                        { name: 'GPS', val: '✅ Locked', icon: '📍', color: '#10B981' },
+                    ];
+                    res.innerHTML = tests.map(t =>
+                        `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);"><span style="font-size:1.3rem;">${t.icon}</span><span style="flex:1;">${t.name}</span><span style="font-weight:700;color:${t.color};">${t.val}</span></div>`
+                        ).join('');
+                    res.innerHTML +=
+                        '<div style="margin-top:8px;font-size:0.8rem;color:var(--text3);">📱 Device: OnePlus 12 · Android 14 · Security Patch: Jan 2026</div>';
+                    showToast('✅ Diagnostics completed successfully!');
+                }, 1800);
+            });
+
+            // Report form
+            $('#reportForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const imei = this.querySelector('#reportIMEI').value.trim();
+                if (!imei) return showToast('⚠️ IMEI is required.');
+                const ticketId = 'SCP-2026-' + String(Math.floor(Math.random() * 900000 + 100000));
+                showToast('✅ Report submitted! Ticket: ' + ticketId);
+                this.reset();
+            });
+
+            // Generate ticket
+            $('#generateTicket').addEventListener('click', function() {
+                const ticketId = 'SCP-2026-' + String(Math.floor(Math.random() * 900000 + 100000));
+                $('#newTicketInfo').innerHTML =
+                    `<div class="ticket-id">${ticketId}</div> <span class="status-badge active">New</span><p style="font-size:0.8rem;color:var(--text2);margin-top:6px;">Ticket created successfully. Track status in the timeline above.</p>`;
+                showToast('🎫 Ticket generated: ' + ticketId);
+            });
+
+            // Notification badge
+            $('#notifBtn').addEventListener('click', () => {
+                const badge = $('#notifBadge');
+                badge.textContent = '0';
+                badge.style.display = 'none';
+                showToast('🔔 3 new notifications: Diagnostics complete, Report updated, Warranty expiring soon');
+            });
+
+            // Dashboard animation
+            function animateDash() {
+                const vals = { dashReports: 4829, dashActive: 156, dashResolved: 4673, dashPending: 89 };
+                Object.entries(vals).forEach(([id, target]) => {
+                    const el = $('#' + id);
+                    if (!el) return;
+                    let cur = 0;
+                    const step = Math.ceil(target / 50);
+                    const int = setInterval(() => {
+                        cur = Math.min(cur + step, target);
+                        el.textContent = Math.floor(cur).toLocaleString('en-IN');
+                        if (cur >= target) clearInterval(int);
+                    }, 25);
+                });
+            }
+            setTimeout(animateDash, 1300);
+
+            console.log('🔧 SmartCare Diagnostics Portal Ready');
+            console.log('📊 Educational UI Prototype - Not affiliated with any brand');
+            console.log('💡 Try: Run Diagnostics, Submit Report, Generate Ticket, Toggle Theme');
+        })();
+    </script>
+</body>
+</html>
